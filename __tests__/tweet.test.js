@@ -34,22 +34,39 @@ describe('app routes', () => {
       });
   });
   
-  it('gets all the tweets', () => {
-    const tweets = [{
-      handle: '@somebody',
-      text: 'once told me the world is gonna roll me'
-    },
-    {
-      handle: '@not_me',
-      text: 'this tweet got thousands of retweets'
-    }];
+  it('gets all the tweets', async() => {
+    const tweets = await Tweet.create([
+      { handle: '@idontdude', text: 'not funny tweet' },
+      { handle: '@meeitherdude', text: 'really funny tweet' },
+      { handle: '@whaaat', text: 'famouse  tweet' },
+    ]);
 
-    return Tweet 
-      .create(tweets)
-      .then(() => {
-        return request(app)
-          .get('/api/v1/tweets');
+    return request(app)
+      .get('/api/v1/tweets')
+      .then(res => {
+        tweets.forEach(tweet => {
+          expect(res.body).toContainEqual({
+            _id: tweet._id.toString(),
+            handle: tweet.handle,
+            text: tweet.text,
+            __v: 0
+          });
+        });
+      });
+  });
+  it('updates a tweet by the id', async() => {
+    const tweet = await Tweet.create(
+      { handle: '@myusername', text: 'corona virus', });
+      
+    return request(app)
+      .patch(`/api/v1/tweets/${tweet._id}`)
+      .then(res => {
+        expect(res.body).toEqual({
+          _id: expect.any(String),
+          handle: tweet.handle,
+          text: tweet.text,
+          __v: 0
+        });
       });
   });
 });
-
