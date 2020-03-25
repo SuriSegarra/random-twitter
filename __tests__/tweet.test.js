@@ -69,4 +69,19 @@ describe('app routes', () => {
         });
       });
   });
+  it('deletes tweet by id', async() => {
+    const tweet = await Tweet.create(
+      { handle: '@anotherUser', text: 'another cool tweet' });
+
+    return request(app)
+      .delete(`/api/v1/tweets/${tweet._id}`)
+      .then(res => {
+        expect(res.body).toEqual({
+          _id: tweet._id.toString(),
+          handle: tweet.handle,
+          text: tweet.text,
+          __v: 0
+        });
+      });
+  });
 });
